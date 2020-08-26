@@ -10,10 +10,10 @@ public class BasinThread extends RecursiveTask<String>  {
      Count count;
      int add = 0;
 	  float[][] arr;
-     String subans = "";
+     String subans = "";  //partial result         
      
-	  static final int SEQUENTIAL_CUTOFF = 100;
-
+	  static final int SEQUENTIAL_CUTOFF = 10000;
+                                          
 	  String ansfinal = ""; // result 
 	    
 	  BasinThread(float[][] a, int start1, int finish1, int start2, int finish2, Count c) { 
@@ -26,11 +26,11 @@ public class BasinThread extends RecursiveTask<String>  {
          
          
          
-         for (int i = s1; i<f1;i++) {
-          for (int j = s2; j<f2; j++) { 
+         for (int i = s1; i<f1;i++) {          //run through all values in the array
+          for (int j = s2; j<f2; j++) {         
            boolean b = false;
            
-           if ((i>0) && (i<(arr.length-1)) && (j>0) && (j<(f2-1))) {
+           if ((i>0) && (i<(arr.length-1)) && (j>0) && (j<(f2-1))) {  //exclude outer edge values
             float initial = 0.01f;
             float v = arr[i][j] + initial;
             int top   = i-1;
@@ -38,29 +38,29 @@ public class BasinThread extends RecursiveTask<String>  {
             int left  = j-1;
             int right = j+1;
             
-            if ( (v <= arr[top][left]) && (v <= arr[top][j]) && (v <= arr[top][right]) && (v <= arr[i][left]) 
+            if ( (v <= arr[top][left]) && (v <= arr[top][j]) && (v <= arr[top][right]) && (v <= arr[i][left])       
                && (v <= arr[i][right]) && (v <= arr[bot][left]) && (v <= arr[bot][j]) && (v <= arr[bot][right]) ) {
-               b = true; }}
+               b = true; }}                                                              //indetifies basin
                
              if (b == true) {
-              count.count1 = count.count1 +1;
-              subans = subans + Integer.toString(i) +" "+ Integer.toString(j) + "\n" ; }
+              count.count1 = count.count1 +1;                                            //increment amount of basins
+              subans = subans + Integer.toString(i) +" "+ Integer.toString(j) + "\n" ; } //stores basin
              
 		  }}
         return subans ;
         } 
         
 		  else {
-			  BasinThread one   = new BasinThread(arr, s1   , (s1+f1)/2, 0, f2, count ); 
+			  BasinThread one   = new BasinThread(arr, s1   , (s1+f1)/2, 0, f2, count );    
 			  BasinThread two   = new BasinThread(arr, (s1+f1)/2   , f1, 0, f2, count   );
 
 			  
 
-			  two.fork();
-			  String oneAns    =  one.compute();
-			  String twoAns    =  two.join();
+			  two.fork();                                        //split on to another thread
+			  String oneAns    =  one.compute();                 //continue on this thread
+			  String twoAns    =  two.join();                    
            
-			  return  oneAns+ twoAns;  
+			  return  oneAns+ twoAns;                            //join all answers and return 
               
 		  }
         
